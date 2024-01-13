@@ -17,6 +17,7 @@ Tools used:
 - [Nix](https://srid.ca/haskell-nix) + [Flakes](https://serokell.io/blog/practical-nix-flakes)
 - [devenv](https://devenv.sh/) and [direnv](https://direnv.net/) for development shell
 - [just](https://just.systems/) as a task runner; run `just` in devshell
+- [nuget-packageslock2nix](https://github.com/mdarocha/nuget-packageslock2nix) for generating nuget dependency lock files for nix
 
 ## Develop
 
