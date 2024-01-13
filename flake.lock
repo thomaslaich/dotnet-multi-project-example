@@ -181,6 +181,27 @@
         "type": "github"
       }
     },
+    "nuget-packageslock2nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1690832952,
+        "narHash": "sha256-lK8lnmcy+4aj0zBUDNh4icamVgQ2jlIKPNx007/zEOA=",
+        "owner": "mdarocha",
+        "repo": "nuget-packageslock2nix",
+        "rev": "5897dae0aaee226bce938afd787ada535a8f0ea2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mdarocha",
+        "ref": "main",
+        "repo": "nuget-packageslock2nix",
+        "type": "github"
+      }
+    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": [
@@ -213,6 +234,7 @@
       "inputs": {
         "devenv": "devenv",
         "nixpkgs": "nixpkgs_2",
+        "nuget-packageslock2nix": "nuget-packageslock2nix",
         "systems": "systems_2"
       }
     },

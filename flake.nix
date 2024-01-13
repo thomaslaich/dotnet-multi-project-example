@@ -3,6 +3,10 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     systems.url = "github:nix-systems/default";
     devenv.url = "github:cachix/devenv";
+    nuget-packageslock2nix = {
+      url = "github:mdarocha/nuget-packageslock2nix/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
@@ -12,14 +16,13 @@
   };
 
   outputs =
-    { self, nixpkgs, devenv, systems, ... }@inputs:
+    { self, nixpkgs, devenv, systems, nuget-packageslock2nix, ... }@inputs:
     let forEachSystem = nixpkgs.lib.genAttrs (import systems);
 
     in {
       packages = forEachSystem (system:
         let
           pkgs = import nixpkgs { inherit system; };
-          nugetDeps = ./deps.nix;
         in rec {
           devenv-up = self.devShells.${system}.default.config.procfileScript;
 
@@ -27,10 +30,16 @@
             name = "project-references-test-library";
             src = ./library;
 
-            inherit nugetDeps;
+            nugetDeps = nuget-packageslock2nix.lib {
+              inherit system;
+              name = "project-references-test-library";
+              lockfiles =
+                [ ./library/packages.lock.json ];
+            };
 
-            dotnet-sdk = pkgs.dotnet-sdk_7;
-            dotnet-runtime = pkgs.dotnet-runtime_7;
+
+            dotnet-sdk = pkgs.dotnet-sdk_8;
+            dotnet-runtime = pkgs.dotnet-runtime_8;
 
             packNupkg = true;
           };
@@ -38,13 +47,18 @@
           application = pkgs.buildDotnetModule {
             name = "project-references-test-application";
             src = ./application;
-            
-            inherit nugetDeps;
+
+            nugetDeps = nuget-packageslock2nix.lib {
+              inherit system;
+              name = "project-references-test-application";
+              lockfiles =
+                [ ./application/packages.lock.json ];
+            };
 
             projectReferences = [ library ];
 
-            dotnet-sdk = pkgs.dotnet-sdk_7;
-            dotnet-runtime = pkgs.dotnet-runtime_7;
+            dotnet-sdk = pkgs.dotnet-sdk_8;
+            dotnet-runtime = pkgs.dotnet-runtime_8;
           };
 
         });
@@ -62,11 +76,11 @@
                 lolcat
                 just # task runner
                 sqlite # sqlite3 db for now
-                dotnet-sdk_7 # .NET SDK version 7
+                dotnet-sdk_8 # .NET SDK version 7
               ];
 
               enterShell = ''
-                export DOTNET_ROOT=${pkgs.dotnet-sdk_7}
+                export DOTNET_ROOT=${pkgs.dotnet-sdk_8}
                 cowsay "Welcome to .NET dev shell" | lolcat
               '';
 
