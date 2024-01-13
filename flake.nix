@@ -17,12 +17,16 @@
 
   outputs =
     { self, nixpkgs, devenv, systems, nuget-packageslock2nix, ... }@inputs:
-    let forEachSystem = nixpkgs.lib.genAttrs (import systems);
+    let
+      forEachSystem = nixpkgs.lib.genAttrs (import systems);
+      mkApp = drv: {
+        type = "app";
+        program = "${drv}/bin/Application";
+      };
 
     in {
       packages = forEachSystem (system:
-        let
-          pkgs = import nixpkgs { inherit system; };
+        let pkgs = import nixpkgs { inherit system; };
         in rec {
           devenv-up = self.devShells.${system}.default.config.procfileScript;
 
@@ -33,10 +37,8 @@
             nugetDeps = nuget-packageslock2nix.lib {
               inherit system;
               name = "project-references-test-library";
-              lockfiles =
-                [ ./library/packages.lock.json ];
+              lockfiles = [ ./library/packages.lock.json ];
             };
-
 
             dotnet-sdk = pkgs.dotnet-sdk_8;
             dotnet-runtime = pkgs.dotnet-runtime_8;
@@ -51,8 +53,7 @@
             nugetDeps = nuget-packageslock2nix.lib {
               inherit system;
               name = "project-references-test-application";
-              lockfiles =
-                [ ./application/packages.lock.json ];
+              lockfiles = [ ./application/packages.lock.json ];
             };
 
             projectReferences = [ library ];
@@ -62,6 +63,9 @@
           };
 
         });
+
+      apps = forEachSystem
+        (system: { default = mkApp (self.packages.${system}.application); });
 
       devShells = forEachSystem (system:
         let pkgs = nixpkgs.legacyPackages.${system};
@@ -76,7 +80,7 @@
                 lolcat
                 just # task runner
                 sqlite # sqlite3 db for now
-                dotnet-sdk_8 # .NET SDK version 7
+                dotnet-sdk_8 # .NET SDK version 8
               ];
 
               enterShell = ''
