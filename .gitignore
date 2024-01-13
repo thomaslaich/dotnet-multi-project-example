@@ -1,0 +1,14 @@
+# build artifacts
+obj/
+bin/
+
+# nix
+result
+result-*
+
+# direnv / devenv
+.direnv
+.devenv
+
+# editors
+.vscode
